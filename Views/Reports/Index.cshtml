@@ -1,0 +1,85 @@
+@{
+    ViewData["Title"] = "CRM Reports Center";
+}
+
+<div class="mb-4">
+    <h2 class="fw-bold mb-0"><i class="bi bi-graph-up-arrow text-primary me-2"></i>CRM Intelligence & Reports</h2>
+    <span class="text-muted">Standard and executive reports with filtering, analysis, and CSV export</span>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-body">
+                <div class="fs-1 text-primary mb-2"><i class="bi bi-people"></i></div>
+                <h5 class="card-title fw-bold">Customer Directory Report</h5>
+                <p class="card-text text-muted">Comprehensive roster of client accounts, contact emails, phone numbers, and statuses.</p>
+                <div class="d-flex gap-2">
+                    <a asp-action="Customers" class="btn btn-outline-primary btn-sm">View Report</a>
+                    <a asp-action="ExportCustomersCsv" class="btn btn-primary btn-sm"><i class="bi bi-download"></i> CSV</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-body">
+                <div class="fs-1 text-info mb-2"><i class="bi bi-funnel"></i></div>
+                <h5 class="card-title fw-bold">Leads & Qualification Report</h5>
+                <p class="card-text text-muted">Inbound lead breakdown by acquisition source, priority level, expected value, and status.</p>
+                <div class="d-flex gap-2">
+                    <a asp-action="Leads" class="btn btn-outline-info btn-sm">View Report</a>
+                    <a asp-action="ExportLeadsCsv" class="btn btn-info btn-sm text-white"><i class="bi bi-download"></i> CSV</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-body">
+                <div class="fs-1 text-success mb-2"><i class="bi bi-cash-coin"></i></div>
+                <h5 class="card-title fw-bold">Pipeline & Forecast Report</h5>
+                <p class="card-text text-muted">Active opportunity amounts, probability stages, close dates, and weighted pipeline projections.</p>
+                <a asp-action="Opportunities" class="btn btn-outline-success btn-sm">View Report</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-body">
+                <div class="fs-1 text-warning mb-2"><i class="bi bi-calendar-check"></i></div>
+                <h5 class="card-title fw-bold">Follow-Up Compliance Report</h5>
+                <p class="card-text text-muted">Audit of planned, completed, missed, and rescheduled interactions across accounts.</p>
+                <a asp-action="FollowUps" class="btn btn-outline-warning btn-sm text-dark">View Report</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-4">
+        <div class="card h-100 shadow-sm border-0">
+            <div class="card-body">
+                <div class="fs-1 text-danger mb-2"><i class="bi bi-trophy"></i></div>
+                <h5 class="card-title fw-bold">Sales & Conversion Report</h5>
+                <p class="card-text text-muted">Detailed review of converted prospects to customers and won opportunity revenue closed.</p>
+                <a asp-action="SalesConversion" class="btn btn-outline-danger btn-sm">View Report</a>
+            </div>
+        </div>
+    </div>
+
+    @if (User.IsInRole("Admin"))
+    {
+        <div class="col-md-4">
+            <div class="card h-100 shadow-sm border-0">
+                <div class="card-body">
+                    <div class="fs-1 text-dark mb-2"><i class="bi bi-shield-check"></i></div>
+                    <h5 class="card-title fw-bold">System Audit Logs</h5>
+                    <p class="card-text text-muted">Administrative audit trail of logins, security events, creations, updates, and deletions.</p>
+                    <a asp-controller="AuditLogs" asp-action="Index" class="btn btn-outline-dark btn-sm">View Audit Trail</a>
+                </div>
+            </div>
+        </div>
+    }
+</div>

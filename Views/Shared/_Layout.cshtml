@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - AcxiomCRM</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/AcxiomCRM.styles.css" asp-append-version="true" />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .sidebar-brand { font-size: 1.25rem; font-weight: 700; color: #0d6efd; text-decoration: none; }
+        .nav-link { font-weight: 500; }
+        .nav-link.active { color: #0d6efd !important; font-weight: 600; }
+        .table-hover tbody tr:hover { background-color: rgba(13, 110, 253, 0.04); }
+        .kpi-card { transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out; border-radius: 0.75rem; }
+        .kpi-card:hover { transform: translateY(-3px); box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.1); }
+    </style>
+</head>
+<body class="bg-light">
+    <header>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark sticky-top shadow-sm py-2">
+            <div class="container-fluid">
+                <a class="navbar-brand fw-bold text-white d-flex align-items-center" asp-controller="Dashboard" asp-action="Index">
+                    <i class="bi bi-diagram-3-fill text-primary fs-4 me-2"></i> AcxiomCRM
+                </a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarMain"
+                        aria-controls="navbarMain" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarMain">
+                    <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                        @if (User.Identity?.IsAuthenticated == true)
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-white-50" asp-controller="Dashboard" asp-action="Index">
+                                    <i class="bi bi-speedometer2 me-1"></i> Dashboard
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white-50" asp-controller="Customers" asp-action="Index">
+                                    <i class="bi bi-people me-1"></i> Customers
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white-50" asp-controller="Leads" asp-action="Index">
+                                    <i class="bi bi-funnel me-1"></i> Leads
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white-50" asp-controller="Opportunities" asp-action="Index">
+                                    <i class="bi bi-cash-coin me-1"></i> Opportunities
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white-50" asp-controller="FollowUps" asp-action="Index">
+                                    <i class="bi bi-calendar-check me-1"></i> Follow-Ups
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white-50" asp-controller="Activities" asp-action="Index">
+                                    <i class="bi bi-clock-history me-1"></i> Activities
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-white-50" asp-controller="Reports" asp-action="Index">
+                                    <i class="bi bi-graph-up-arrow me-1"></i> Reports
+                                </a>
+                            </li>
+                            @if (User.IsInRole("Admin"))
+                            {
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle text-warning" href="#" id="adminDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        <i class="bi bi-gear-fill me-1"></i> Admin
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-dark" aria-labelledby="adminDropdown">
+                                        <li><a class="dropdown-item" asp-controller="Users" asp-action="Index"><i class="bi bi-person-badge me-2"></i>User & Role Management</a></li>
+                                        <li><a class="dropdown-item" asp-controller="AuditLogs" asp-action="Index"><i class="bi bi-journal-text me-2"></i>Audit Logs</a></li>
+                                    </ul>
+                                </li>
+                            }
+                        }
+                    </ul>
+                    <div class="d-flex align-items-center">
+                        <partial name="_LoginPartial" />
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+
+    <div class="container-fluid px-4 py-3">
+        <!-- Toast / Alert notifications -->
+        @if (TempData["SuccessMessage"] != null)
+        {
+            <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i> @TempData["SuccessMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+        @if (TempData["ErrorMessage"] != null)
+        {
+            <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i> @TempData["ErrorMessage"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        }
+
+        <main role="main" class="pb-4">
+            @RenderBody()
+        </main>
+    </div>
+
+    <footer class="border-top footer text-muted bg-white py-3 mt-auto">
+        <div class="container-fluid px-4 d-flex justify-content-between align-items-center small">
+            <span>&copy; 2026 <strong>AcxiomCRM</strong>. Enterprise Relationship Management.</span>
+            <span>REST API available at <code class="text-primary">/api/customers</code>, <code class="text-primary">/api/leads</code>, <code class="text-primary">/api/opportunities</code></span>
+        </div>
+    </footer>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

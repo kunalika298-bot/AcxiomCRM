@@ -1,0 +1,32 @@
+@model AcxiomCRM.Models.Customer
+@{
+    ViewData["Title"] = "Delete Customer";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card shadow-sm border-danger">
+            <div class="card-header bg-danger text-white py-3">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-exclamation-triangle-fill me-2"></i>Confirm Delete Customer</h5>
+            </div>
+            <div class="card-body p-4">
+                <p class="lead">Are you sure you want to permanently delete customer <strong>@Model.CustomerName</strong>?</p>
+                <div class="alert alert-warning">
+                    <strong>Code:</strong> <code>@Model.CustomerCode</code><br />
+                    <strong>Email:</strong> @Model.Email<br />
+                    <strong>Company:</strong> @(Model.CompanyName ?? "N/A")<br />
+                    <strong>Assigned:</strong> @(Model.AssignedUser?.FullName ?? "Unassigned")
+                </div>
+
+                <form asp-action="Delete" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="CustomerId" />
+                    <div class="d-flex justify-content-between pt-2">
+                        <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-danger fw-semibold">Permanently Delete</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>

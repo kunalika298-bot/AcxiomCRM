@@ -1,0 +1,44 @@
+@model IEnumerable<AcxiomCRM.Models.FollowUp>
+@{
+    ViewData["Title"] = "Follow-Ups Report";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h3 class="fw-bold mb-0">Follow-Up Compliance Report</h3>
+        <span class="text-muted">Tracking client checkpoints and interaction records</span>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Reports Home</a>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Type</th>
+                        <th>Client / Lead</th>
+                        <th>Status</th>
+                        <th>Assigned</th>
+                        <th>Remarks</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var f in Model)
+                    {
+                        <tr>
+                            <td>@f.FollowUpDate.ToString("yyyy-MM-dd HH:mm")</td>
+                            <td><span class="badge bg-light text-dark border">@f.FollowUpType</span></td>
+                            <td>@(f.Customer?.CustomerName ?? f.Lead?.LeadName ?? "-")</td>
+                            <td><span class="badge @(f.Status == "Completed" ? "bg-success" : f.Status == "Missed" ? "bg-danger" : "bg-warning text-dark")">@f.Status</span></td>
+                            <td><small>@(f.AssignedUser?.FullName ?? "Unassigned")</small></td>
+                            <td><small class="text-muted">@(f.Remarks ?? "-")</small></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

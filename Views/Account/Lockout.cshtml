@@ -1,0 +1,21 @@
+@{
+    ViewData["Title"] = "Locked Out";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 text-center">
+        <div class="card shadow-sm border-danger">
+            <div class="card-body p-5">
+                <i class="bi bi-shield-x text-danger display-1 mb-3"></i>
+                <h2 class="text-danger fw-bold">Account Temporarily Locked Out</h2>
+                <p class="lead text-muted mt-3">
+                    This account has been temporarily locked out due to multiple consecutive failed login attempts.
+                </p>
+                <div class="alert alert-warning text-start">
+                    <strong>Security Policy:</strong> For your security, please wait 15 minutes before attempting to log in again, or contact your CRM Administrator to unlock your account.
+                </div>
+                <a asp-action="Login" class="btn btn-outline-primary mt-3">Return to Login</a>
+            </div>
+        </div>
+    </div>
+</div>

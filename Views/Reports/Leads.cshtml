@@ -1,0 +1,80 @@
+@model IEnumerable<AcxiomCRM.Models.Lead>
+@{
+    ViewData["Title"] = "Lead Report";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h3 class="fw-bold mb-0">Leads & Pipeline Acquisition Report</h3>
+        <span class="text-muted">Total Expected Value: <strong>$@Model.Sum(l => l.ExpectedValue).ToString("N0")</strong></span>
+    </div>
+    <div class="d-flex gap-2">
+        <a asp-action="ExportLeadsCsv" asp-route-status="@ViewBag.Status" asp-route-priority="@ViewBag.Priority" class="btn btn-info btn-sm text-white">
+            <i class="bi bi-download me-1"></i> Export to CSV
+        </a>
+        <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Reports Home</a>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0 mb-3">
+    <div class="card-body py-2">
+        <form method="get" class="row g-2 align-items-center">
+            <div class="col-md-3">
+                <select name="status" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">-- All Statuses --</option>
+                    <option value="New" selected="@(ViewBag.Status == "New")">New</option>
+                    <option value="Contacted" selected="@(ViewBag.Status == "Contacted")">Contacted</option>
+                    <option value="Qualified" selected="@(ViewBag.Status == "Qualified")">Qualified</option>
+                    <option value="Converted" selected="@(ViewBag.Status == "Converted")">Converted</option>
+                    <option value="Lost" selected="@(ViewBag.Status == "Lost")">Lost</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="priority" class="form-select form-select-sm" onchange="this.form.submit()">
+                    <option value="">-- All Priorities --</option>
+                    <option value="High" selected="@(ViewBag.Priority == "High")">High</option>
+                    <option value="Medium" selected="@(ViewBag.Priority == "Medium")">Medium</option>
+                    <option value="Low" selected="@(ViewBag.Priority == "Low")">Low</option>
+                </select>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Code</th>
+                        <th>Lead Name</th>
+                        <th>Company</th>
+                        <th>Email</th>
+                        <th>Source</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                        <th>Expected Value</th>
+                        <th>Assigned</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var l in Model)
+                    {
+                        <tr>
+                            <td><code>@l.LeadCode</code></td>
+                            <td class="fw-semibold">@l.LeadName</td>
+                            <td>@(l.CompanyName ?? "-")</td>
+                            <td>@l.Email</td>
+                            <td>@(l.Source ?? "-")</td>
+                            <td><span class="badge @(l.Status == "Converted" ? "bg-success" : l.Status == "Qualified" ? "bg-primary" : "bg-info text-dark")">@l.Status</span></td>
+                            <td><span class="badge @(l.Priority == "High" ? "bg-danger" : "bg-secondary")">@l.Priority</span></td>
+                            <td><strong>$@l.ExpectedValue.ToString("N0")</strong></td>
+                            <td><small>@(l.AssignedUser?.FullName ?? "Unassigned")</small></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

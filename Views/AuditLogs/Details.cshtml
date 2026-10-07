@@ -1,0 +1,63 @@
+@model AcxiomCRM.Models.AuditLog
+@{
+    ViewData["Title"] = "Audit Log Details";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-0">
+            <div class="card-header bg-dark text-white py-3 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-shield-check me-2"></i>Audit Log Record #@Model.AuditLogId</h5>
+                <span class="badge bg-primary">@Model.Action</span>
+            </div>
+            <div class="card-body p-4">
+                <div class="row mb-3">
+                    <div class="col-sm-4 fw-semibold text-muted">Date & Time:</div>
+                    <div class="col-sm-8">@Model.CreatedDate.ToString("yyyy-MM-dd HH:mm:ss") UTC</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 fw-semibold text-muted">User Email:</div>
+                    <div class="col-sm-8">@(Model.UserEmail ?? "System / Anonymous")</div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 fw-semibold text-muted">User ID:</div>
+                    <div class="col-sm-8"><code>@(Model.UserId ?? "-")</code></div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 fw-semibold text-muted">Entity:</div>
+                    <div class="col-sm-8"><span class="badge bg-light text-dark border">@Model.EntityName</span></div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 fw-semibold text-muted">Record ID:</div>
+                    <div class="col-sm-8"><code>@(Model.RecordId ?? "-")</code></div>
+                </div>
+                <div class="row mb-3">
+                    <div class="col-sm-4 fw-semibold text-muted">IP Address:</div>
+                    <div class="col-sm-8">@Model.IpAddress</div>
+                </div>
+
+                @if (!string.IsNullOrEmpty(Model.OldValue))
+                {
+                    <div class="mb-3">
+                        <label class="fw-semibold text-muted mb-1">Old Value / Previous State:</label>
+                        <div class="p-3 bg-light rounded border font-monospace text-wrap" style="white-space: pre-wrap;">@Model.OldValue</div>
+                    </div>
+                }
+
+                @if (!string.IsNullOrEmpty(Model.NewValue))
+                {
+                    <div class="mb-3">
+                        <label class="fw-semibold text-muted mb-1">New Value / Current State:</label>
+                        <div class="p-3 bg-light rounded border font-monospace text-wrap" style="white-space: pre-wrap;">@Model.NewValue</div>
+                    </div>
+                }
+
+                <div class="mt-4">
+                    <a asp-action="Index" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-left me-1"></i> Back to Audit Logs
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

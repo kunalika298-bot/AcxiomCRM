@@ -1,0 +1,39 @@
+@using Microsoft.AspNetCore.Identity
+@using AcxiomCRM.Models
+@inject SignInManager<ApplicationUser> SignInManager
+@inject UserManager<ApplicationUser> UserManager
+
+<ul class="navbar-nav">
+@if (SignInManager.IsSignedIn(User))
+{
+    var currentUser = await UserManager.GetUserAsync(User);
+    var roles = currentUser != null ? await UserManager.GetRolesAsync(currentUser) : new List<string>();
+    var primaryRole = roles.FirstOrDefault() ?? "User";
+
+    <li class="nav-item d-flex align-items-center me-2">
+        <span class="badge @(primaryRole == "Admin" ? "bg-danger" : primaryRole == "Manager" ? "bg-warning text-dark" : "bg-primary") me-1">
+            <i class="bi bi-shield-check"></i> @primaryRole
+        </span>
+        <span class="navbar-text fw-semibold text-dark">
+            @(currentUser?.FullName ?? User.Identity?.Name)
+        </span>
+    </li>
+    <li class="nav-item">
+        <form class="form-inline" asp-controller="Account" asp-action="Logout" method="post">
+            @Html.AntiForgeryToken()
+            <button type="submit" class="btn btn-outline-danger btn-sm ms-2">
+                <i class="bi bi-box-arrow-right"></i> Logout
+            </button>
+        </form>
+    </li>
+}
+else
+{
+    <li class="nav-item">
+        <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Register</a>
+    </li>
+    <li class="nav-item">
+        <a class="btn btn-primary btn-sm ms-2 text-white" asp-controller="Account" asp-action="Login">Login</a>
+    </li>
+}
+</ul>

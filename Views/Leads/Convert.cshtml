@@ -1,0 +1,90 @@
+@model AcxiomCRM.Models.Customer
+@{
+    ViewData["Title"] = "Convert Lead to Customer";
+    var lead = ViewBag.Lead as AcxiomCRM.Models.Lead;
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow-sm border-success">
+            <div class="card-header bg-success text-white py-3">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-person-check-fill me-2"></i>Convert Lead to Customer</h5>
+            </div>
+            <div class="card-body p-4">
+                <div class="alert alert-info">
+                    <strong>Lead Being Converted:</strong> @lead?.LeadName (<code>@lead?.LeadCode</code>) from @(lead?.CompanyName ?? "N/A") with expected value of <strong>$@lead?.ExpectedValue.ToString("N0")</strong>.
+                    <br />This will create an active Customer record, update the lead status to <em>Converted</em>, and record this conversion in the audit log.
+                </div>
+
+                <form asp-action="Convert" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" name="leadId" value="@lead?.LeadId" />
+                    <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="CustomerCode" class="form-label fw-semibold"></label>
+                            <input asp-for="CustomerCode" class="form-control" readonly />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="CustomerName" class="form-label fw-semibold"></label>
+                            <input asp-for="CustomerName" class="form-control" />
+                            <span asp-validation-for="CustomerName" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Email" class="form-label fw-semibold"></label>
+                            <input asp-for="Email" class="form-control" />
+                            <span asp-validation-for="Email" class="text-danger small"></span>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Phone" class="form-label fw-semibold"></label>
+                            <input asp-for="Phone" class="form-control" />
+                            <span asp-validation-for="Phone" class="text-danger small"></span>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="CompanyName" class="form-label fw-semibold"></label>
+                            <input asp-for="CompanyName" class="form-control" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="Status" class="form-label fw-semibold"></label>
+                            <input asp-for="Status" class="form-control" value="Active" readonly />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Address" class="form-label fw-semibold"></label>
+                        <input asp-for="Address" class="form-control" placeholder="Office Address" />
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="City" class="form-label fw-semibold"></label>
+                            <input asp-for="City" class="form-control" placeholder="City" />
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label asp-for="State" class="form-label fw-semibold"></label>
+                            <input asp-for="State" class="form-control" placeholder="State" />
+                        </div>
+                    </div>
+
+                    <input type="hidden" asp-for="AssignedTo" />
+
+                    <div class="d-flex justify-content-between pt-3">
+                        <a asp-action="Details" asp-route-id="@lead?.LeadId" class="btn btn-outline-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-success fw-bold px-4">Confirm Lead Conversion</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

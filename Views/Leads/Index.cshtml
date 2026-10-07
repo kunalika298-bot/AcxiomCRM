@@ -1,0 +1,162 @@
+@model IEnumerable<AcxiomCRM.Models.Lead>
+@{
+    ViewData["Title"] = "Lead Management";
+    int currentPage = ViewBag.CurrentPage;
+    int totalPages = ViewBag.TotalPages;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="fw-bold mb-0"><i class="bi bi-funnel text-primary me-2"></i>Leads</h2>
+        <span class="text-muted">Track prospective deals, qualifications, and conversions</span>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i> New Lead
+    </a>
+</div>
+
+<!-- Filters -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-center">
+            <div class="col-md-3">
+                <input type="text" name="search" class="form-control" placeholder="Search name, company, email..." value="@ViewBag.Search" />
+            </div>
+            <div class="col-md-2">
+                <select name="status" class="form-select">
+                    <option value="">-- All Statuses --</option>
+                    <option value="New" selected="@(ViewBag.Status == "New")">New</option>
+                    <option value="Contacted" selected="@(ViewBag.Status == "Contacted")">Contacted</option>
+                    <option value="Qualified" selected="@(ViewBag.Status == "Qualified")">Qualified</option>
+                    <option value="Unqualified" selected="@(ViewBag.Status == "Unqualified")">Unqualified</option>
+                    <option value="Converted" selected="@(ViewBag.Status == "Converted")">Converted</option>
+                    <option value="Lost" selected="@(ViewBag.Status == "Lost")">Lost</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="priority" class="form-select">
+                    <option value="">-- All Priorities --</option>
+                    <option value="High" selected="@(ViewBag.Priority == "High")">High</option>
+                    <option value="Medium" selected="@(ViewBag.Priority == "Medium")">Medium</option>
+                    <option value="Low" selected="@(ViewBag.Priority == "Low")">Low</option>
+                </select>
+            </div>
+            @if (!User.IsInRole("Sales Executive"))
+            {
+                <div class="col-md-3">
+                    <select name="assignedTo" asp-items="ViewBag.UsersList" class="form-select">
+                        <option value="">-- All Assigned Users --</option>
+                    </select>
+                </div>
+            }
+            <div class="col-md-2 d-flex gap-2">
+                <button type="submit" class="btn btn-secondary w-100">Filter</button>
+                <a asp-action="Index" class="btn btn-outline-secondary">Reset</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Leads Table -->
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Code</th>
+                        <th>Lead Name</th>
+                        <th>Company</th>
+                        <th>Source</th>
+                        <th>Expected Value</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Assigned To</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="9" class="text-center py-4 text-muted">
+                                <i class="bi bi-inbox fs-2 d-block mb-2"></i> No leads found.
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var lead in Model)
+                    {
+                        <tr>
+                            <td><code>@lead.LeadCode</code></td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@lead.LeadId" class="fw-bold text-decoration-none text-dark">
+                                    @lead.LeadName
+                                </a>
+                                <small class="text-muted d-block">@lead.Email</small>
+                            </td>
+                            <td>@(lead.CompanyName ?? "-")</td>
+                            <td><span class="badge bg-light text-dark border">@(lead.Source ?? "General")</span></td>
+                            <td><strong class="text-success">$@lead.ExpectedValue.ToString("N0")</strong></td>
+                            <td>
+                                <span class="badge @(lead.Priority == "High" ? "bg-danger" : lead.Priority == "Medium" ? "bg-warning text-dark" : "bg-secondary")">
+                                    @lead.Priority
+                                </span>
+                            </td>
+                            <td>
+                                <span class="badge @(lead.Status == "Converted" ? "bg-success" : lead.Status == "Qualified" ? "bg-primary" : lead.Status == "Lost" ? "bg-danger" : "bg-info text-dark")">
+                                    @lead.Status
+                                </span>
+                            </td>
+                            <td>
+                                @if (lead.AssignedUser != null)
+                                {
+                                    <small class="fw-semibold">@lead.AssignedUser.FullName</small>
+                                }
+                                else
+                                {
+                                    <span class="text-muted small">Unassigned</span>
+                                }
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm">
+                                    <a asp-action="Details" asp-route-id="@lead.LeadId" class="btn btn-outline-secondary" title="View Lead">
+                                        <i class="bi bi-eye"></i>
+                                    </a>
+                                    <a asp-action="Edit" asp-route-id="@lead.LeadId" class="btn btn-outline-primary" title="Edit Lead">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    @if (lead.Status != "Converted")
+                                    {
+                                        <a asp-action="Convert" asp-route-id="@lead.LeadId" class="btn btn-outline-success" title="Convert to Customer">
+                                            <i class="bi bi-arrow-right-circle"></i> Convert
+                                        </a>
+                                    }
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @if (totalPages > 1)
+    {
+        <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+            <span class="text-muted small">Page @currentPage of @totalPages (@ViewBag.TotalItems leads)</span>
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@(currentPage - 1)" asp-route-search="@ViewBag.Search" asp-route-status="@ViewBag.Status" asp-route-priority="@ViewBag.Priority">Previous</a>
+                </li>
+                @for (int p = 1; p <= totalPages; p++)
+                {
+                    <li class="page-item @(p == currentPage ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@p" asp-route-search="@ViewBag.Search" asp-route-status="@ViewBag.Status" asp-route-priority="@ViewBag.Priority">@p</a>
+                    </li>
+                }
+                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@(currentPage + 1)" asp-route-search="@ViewBag.Search" asp-route-status="@ViewBag.Status" asp-route-priority="@ViewBag.Priority">Next</a>
+                </li>
+            </ul>
+        </div>
+    }
+</div>

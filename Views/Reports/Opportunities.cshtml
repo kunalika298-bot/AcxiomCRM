@@ -1,0 +1,50 @@
+@model IEnumerable<AcxiomCRM.Models.Opportunity>
+@{
+    ViewData["Title"] = "Pipeline Report";
+    decimal totalAmount = Model.Sum(o => o.Amount);
+    decimal weightedTotal = Model.Sum(o => o.WeightedPipeline);
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h3 class="fw-bold mb-0">Pipeline & Revenue Forecast Report</h3>
+        <span class="text-muted">Total: <strong>$@totalAmount.ToString("N2")</strong> | Weighted: <strong class="text-success">$@weightedTotal.ToString("N2")</strong></span>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Reports Home</a>
+</div>
+
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Opportunity</th>
+                        <th>Account / Lead</th>
+                        <th>Amount</th>
+                        <th>Stage</th>
+                        <th>Probability</th>
+                        <th>Weighted Forecast</th>
+                        <th>Close Date</th>
+                        <th>Owner</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var o in Model)
+                    {
+                        <tr>
+                            <td class="fw-semibold">@o.OpportunityName</td>
+                            <td>@(o.Customer?.CustomerName ?? o.Lead?.LeadName ?? "-")</td>
+                            <td>$@o.Amount.ToString("N2")</td>
+                            <td><span class="badge @(o.Stage == "Won" ? "bg-success" : o.Stage == "Lost" ? "bg-danger" : "bg-primary")">@o.Stage</span></td>
+                            <td>@o.Probability%</td>
+                            <td><strong class="text-success">$@o.WeightedPipeline.ToString("N2")</strong></td>
+                            <td><small>@o.ExpectedCloseDate.ToString("yyyy-MM-dd")</small></td>
+                            <td><small>@(o.AssignedUser?.FullName ?? "Unassigned")</small></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

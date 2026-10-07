@@ -1,0 +1,216 @@
+@model IEnumerable<AcxiomCRM.Models.FollowUp>
+@{
+    ViewData["Title"] = "Follow-Up Management";
+    string currentFilter = ViewBag.FilterType ?? "all";
+    int currentPage = ViewBag.CurrentPage;
+    int totalPages = ViewBag.TotalPages;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h2 class="fw-bold mb-0"><i class="bi bi-calendar-check text-primary me-2"></i>Follow-Up Management</h2>
+        <span class="text-muted">Track upcoming client checkpoints, overdue calls, and scheduling</span>
+    </div>
+    <a asp-action="Create" class="btn btn-primary">
+        <i class="bi bi-plus-circle me-1"></i> Schedule Follow-Up
+    </a>
+</div>
+
+<!-- Tabs for All / Upcoming / Overdue -->
+<ul class="nav nav-pills mb-3 bg-white p-2 rounded shadow-sm">
+    <li class="nav-item">
+        <a class="nav-link @(currentFilter == "all" ? "active" : "")" asp-action="Index" asp-route-filterType="all">
+            <i class="bi bi-list-ul me-1"></i> All Follow-Ups
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentFilter == "upcoming" ? "active" : "")" asp-action="Index" asp-route-filterType="upcoming">
+            <i class="bi bi-clock me-1"></i> Upcoming (Planned)
+        </a>
+    </li>
+    <li class="nav-item">
+        <a class="nav-link @(currentFilter == "overdue" ? "active bg-danger" : "text-danger")" asp-action="Index" asp-route-filterType="overdue">
+            <i class="bi bi-exclamation-octagon me-1"></i> Overdue Tasks
+        </a>
+    </li>
+</ul>
+
+<!-- Filters -->
+<div class="card shadow-sm border-0 mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-2 align-items-center">
+            <input type="hidden" name="filterType" value="@currentFilter" />
+            <div class="col-md-3">
+                <select name="status" class="form-select">
+                    <option value="">-- All Statuses --</option>
+                    <option value="Planned" selected="@(ViewBag.Status == "Planned")">Planned</option>
+                    <option value="Completed" selected="@(ViewBag.Status == "Completed")">Completed</option>
+                    <option value="Missed" selected="@(ViewBag.Status == "Missed")">Missed</option>
+                    <option value="Cancelled" selected="@(ViewBag.Status == "Cancelled")">Cancelled</option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <select name="type" class="form-select">
+                    <option value="">-- All Types --</option>
+                    <option value="Call" selected="@(ViewBag.Type == "Call")">Call</option>
+                    <option value="Email" selected="@(ViewBag.Type == "Email")">Email</option>
+                    <option value="Meeting" selected="@(ViewBag.Type == "Meeting")">Meeting</option>
+                    <option value="Demo" selected="@(ViewBag.Type == "Demo")">Demo</option>
+                    <option value="Task" selected="@(ViewBag.Type == "Task")">Task</option>
+                </select>
+            </div>
+            @if (!User.IsInRole("Sales Executive"))
+            {
+                <div class="col-md-3">
+                    <select name="assignedTo" asp-items="ViewBag.UsersList" class="form-select">
+                        <option value="">-- All Assigned Users --</option>
+                    </select>
+                </div>
+            }
+            <div class="col-md-3 d-flex gap-2">
+                <button type="submit" class="btn btn-secondary w-100">Filter</button>
+                <a asp-action="Index" asp-route-filterType="@currentFilter" class="btn btn-outline-secondary">Reset</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Follow-Ups Table -->
+<div class="card shadow-sm border-0">
+    <div class="card-body p-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>Date & Time</th>
+                        <th>Type</th>
+                        <th>Related Entity</th>
+                        <th>Remarks / Notes</th>
+                        <th>Assigned To</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-4 text-muted">
+                                <i class="bi bi-calendar-x fs-2 d-block mb-2"></i> No follow-ups matching criteria.
+                            </td>
+                        </tr>
+                    }
+                    @foreach (var item in Model)
+                    {
+                        bool isOverdue = item.FollowUpDate < DateTime.UtcNow && item.Status == "Planned";
+                        <tr class="@(isOverdue ? "table-danger" : "")">
+                            <td>
+                                <div class="fw-bold">@item.FollowUpDate.ToString("yyyy-MM-dd")</div>
+                                <small class="text-muted">@item.FollowUpDate.ToString("hh:mm tt")</small>
+                            </td>
+                            <td>
+                                <span class="badge bg-light text-dark border">
+                                    <i class="bi bi-@(item.FollowUpType == "Call" ? "telephone" : item.FollowUpType == "Email" ? "envelope" : item.FollowUpType == "Meeting" ? "people" : "check2-square") me-1"></i>
+                                    @item.FollowUpType
+                                </span>
+                            </td>
+                            <td>
+                                @if (item.Customer != null)
+                                {
+                                    <div><i class="bi bi-building text-primary small"></i> <a asp-controller="Customers" asp-action="Details" asp-route-id="@item.CustomerId" class="text-decoration-none">@item.Customer.CustomerName</a></div>
+                                }
+                                @if (item.Lead != null)
+                                {
+                                    <div><i class="bi bi-funnel text-info small"></i> <a asp-controller="Leads" asp-action="Details" asp-route-id="@item.LeadId" class="text-decoration-none">@item.Lead.LeadName</a></div>
+                                }
+                                @if (item.Opportunity != null)
+                                {
+                                    <small class="text-muted d-block"><i class="bi bi-cash small"></i> @item.Opportunity.OpportunityName</small>
+                                }
+                            </td>
+                            <td>
+                                <span class="text-truncate d-inline-block" style="max-width: 250px;" title="@item.Remarks">
+                                    @(item.Remarks ?? "-")
+                                </span>
+                            </td>
+                            <td><small class="fw-semibold">@(item.AssignedUser?.FullName ?? "Unassigned")</small></td>
+                            <td>
+                                <span class="badge @(item.Status == "Completed" ? "bg-success" : item.Status == "Missed" || isOverdue ? "bg-danger" : item.Status == "Cancelled" ? "bg-secondary" : "bg-warning text-dark")">
+                                    @(isOverdue ? "Overdue" : item.Status)
+                                </span>
+                            </td>
+                            <td class="text-end">
+                                <div class="btn-group btn-group-sm">
+                                    @if (item.Status == "Planned" || isOverdue)
+                                    {
+                                        <form asp-action="Complete" asp-route-id="@item.FollowUpId" method="post" class="d-inline">
+                                            @Html.AntiForgeryToken()
+                                            <button type="submit" class="btn btn-outline-success" title="Mark as Completed">
+                                                <i class="bi bi-check-lg"></i>
+                                            </button>
+                                        </form>
+                                        <button type="button" class="btn btn-outline-warning text-dark" data-bs-toggle="modal" data-bs-target="#rescheduleModal-@item.FollowUpId" title="Reschedule">
+                                            <i class="bi bi-calendar-event"></i>
+                                        </button>
+                                    }
+                                    <a asp-action="Edit" asp-route-id="@item.FollowUpId" class="btn btn-outline-secondary" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                </div>
+
+                                <!-- Reschedule Modal -->
+                                <div class="modal fade text-start" id="rescheduleModal-@item.FollowUpId" tabindex="-1">
+                                    <div class="modal-dialog">
+                                        <div class="modal-content">
+                                            <form asp-action="Reschedule" asp-route-id="@item.FollowUpId" method="post">
+                                                @Html.AntiForgeryToken()
+                                                <div class="modal-header">
+                                                    <h5 class="modal-title">Reschedule Follow-Up</h5>
+                                                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                                                </div>
+                                                <div class="modal-body">
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-semibold">New Date & Time</label>
+                                                        <input type="datetime-local" name="newDate" class="form-control" value="@DateTime.Today.AddDays(1).ToString("yyyy-MM-ddTHH:mm")" required />
+                                                    </div>
+                                                    <div class="mb-3">
+                                                        <label class="form-label fw-semibold">Reason for Rescheduling</label>
+                                                        <input type="text" name="reason" class="form-control" placeholder="Client requested change..." />
+                                                    </div>
+                                                </div>
+                                                <div class="modal-footer">
+                                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                    <button type="submit" class="btn btn-primary">Save New Schedule</button>
+                                                </div>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    @if (totalPages > 1)
+    {
+        <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+            <span class="text-muted small">Page @currentPage of @totalPages</span>
+            <ul class="pagination pagination-sm mb-0">
+                <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@(currentPage - 1)" asp-route-filterType="@currentFilter">Previous</a>
+                </li>
+                @for (int p = 1; p <= totalPages; p++)
+                {
+                    <li class="page-item @(p == currentPage ? "active" : "")">
+                        <a class="page-link" asp-action="Index" asp-route-page="@p" asp-route-filterType="@currentFilter">@p</a>
+                    </li>
+                }
+                <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                    <a class="page-link" asp-action="Index" asp-route-page="@(currentPage + 1)" asp-route-filterType="@currentFilter">Next</a>
+                </li>
+            </ul>
+        </div>
+    }
+</div>

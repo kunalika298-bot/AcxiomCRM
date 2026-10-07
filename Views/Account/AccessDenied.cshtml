@@ -1,0 +1,24 @@
+@{
+    ViewData["Title"] = "Access Denied";
+}
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 text-center">
+        <div class="card shadow-sm border-warning">
+            <div class="card-body p-5">
+                <i class="bi bi-exclamation-triangle text-warning display-1 mb-3"></i>
+                <h2 class="text-dark fw-bold">Access Denied</h2>
+                <p class="lead text-muted mt-3">
+                    You do not have the required permissions or role to view this page or resource.
+                </p>
+                <div class="alert alert-secondary text-start">
+                    <strong>Role Notice:</strong> Certain administrative tools and team datasets are restricted based on your assigned role (Admin, Manager, Sales Executive).
+                </div>
+                <div class="mt-4">
+                    <a asp-controller="Dashboard" asp-action="Index" class="btn btn-primary me-2">Go to Dashboard</a>
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-outline-secondary">Go to Home</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

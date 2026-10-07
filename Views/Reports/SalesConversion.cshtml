@@ -1,0 +1,92 @@
+@{
+    ViewData["Title"] = "Sales & Conversion Report";
+    var convertedLeads = ViewBag.ConvertedLeads as List<AcxiomCRM.Models.Lead> ?? new List<AcxiomCRM.Models.Lead>();
+    var wonDeals = ViewBag.WonDeals as List<AcxiomCRM.Models.Opportunity> ?? new List<AcxiomCRM.Models.Opportunity>();
+    decimal totalWon = wonDeals.Sum(w => w.Amount);
+}
+
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <div>
+        <h3 class="fw-bold mb-0">Sales & Conversion Performance Report</h3>
+        <span class="text-muted">Total Closed Won Revenue: <strong class="text-success">$@totalWon.ToString("N2")</strong></span>
+    </div>
+    <a asp-action="Index" class="btn btn-outline-secondary btn-sm">Reports Home</a>
+</div>
+
+<div class="row g-4 mb-4">
+    <!-- Converted Leads -->
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white py-3 fw-bold">
+                <i class="bi bi-person-check-fill text-success me-2"></i>Converted Leads to Customers (@convertedLeads.Count)
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Lead</th>
+                                <th>Customer Account</th>
+                                <th>Expected</th>
+                                <th>Owner</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!convertedLeads.Any())
+                            {
+                                <tr><td colspan="4" class="text-center text-muted py-3">No leads converted yet.</td></tr>
+                            }
+                            @foreach (var l in convertedLeads)
+                            {
+                                <tr>
+                                    <td>@l.LeadName</td>
+                                    <td><strong class="text-primary">@(l.ConvertedCustomer?.CustomerName ?? "Customer")</strong></td>
+                                    <td>$@l.ExpectedValue.ToString("N0")</td>
+                                    <td><small>@(l.AssignedUser?.FullName ?? "-")</small></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Closed Won Opportunities -->
+    <div class="col-md-6">
+        <div class="card shadow-sm border-0 h-100">
+            <div class="card-header bg-white py-3 fw-bold">
+                <i class="bi bi-trophy-fill text-warning me-2"></i>Closed Won Opportunities (@wonDeals.Count)
+            </div>
+            <div class="card-body p-0">
+                <div class="table-responsive">
+                    <table class="table table-sm table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Opportunity</th>
+                                <th>Customer</th>
+                                <th>Amount Won</th>
+                                <th>Owner</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if (!wonDeals.Any())
+                            {
+                                <tr><td colspan="4" class="text-center text-muted py-3">No won deals recorded.</td></tr>
+                            }
+                            @foreach (var w in wonDeals)
+                            {
+                                <tr>
+                                    <td>@w.OpportunityName</td>
+                                    <td>@(w.Customer?.CustomerName ?? "-")</td>
+                                    <td><strong class="text-success">$@w.Amount.ToString("N2")</strong></td>
+                                    <td><small>@(w.AssignedUser?.FullName ?? "-")</small></td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
